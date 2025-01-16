@@ -1,0 +1,23 @@
+name: Send Email
+
+on:
+  workflow_dispatch:
+    inputs:
+      email:
+        description: 'User email'
+        required: true
+
+jobs:
+  send_email:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Send email
+      env:
+        EMAIL: ${{ secrets.EMAIL }}
+        EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+      run: |
+        echo "User email: ${{ github.event.inputs.email }}"
+        echo "Sending email to $EMAIL"
+
+        sudo apt-get install -y mailutils
+        echo "Thank you for joining our waiting list!" | mail -s "Confirmation Email" -a "From: $EMAIL" ${{ github.event.inputs.email }}
