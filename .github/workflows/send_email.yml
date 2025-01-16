@@ -9,7 +9,7 @@ on:
 
 jobs:
   send_email:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
     - name: Send email
       env:
@@ -19,5 +19,12 @@ jobs:
         echo "User email: ${{ github.event.inputs.email }}"
         echo "Sending email to $EMAIL"
 
-        sudo apt-get install -y mailutils
-        echo "Thank you for joining our waiting list!" | mail -s "Confirmation Email" -a "From: $EMAIL" ${{ github.event.inputs.email }}
+        sudo apt-get update
+        sudo apt-get install -y ssmtp
+        echo "root=EMAIL@gmail.com" | sudo tee -a /etc/ssmtp/ssmtp.conf
+        echo "mailhub=smtp.gmail.com:587" | sudo tee -a /etc/ssmtp/ssmtp.conf
+        echo "AuthUser=$EMAIL" | sudo tee -a /etc/ssmtp/ssmtp.conf
+        echo "AuthPass=$EMAIL_PASSWORD" | sudo tee -a /etc/ssmtp/ssmtp.conf
+        echo "UseSTARTTLS=YES" | sudo tee -a /etc/ssmtp/ssmtp.conf
+
+        echo "Thank you for joining our waiting list!" | ssmtp -vvv ${{ github.event.inputs.email }}
